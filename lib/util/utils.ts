@@ -1,22 +1,22 @@
-import type {Zigbee2MQTTAPI, Zigbee2MQTTResponse, Zigbee2MQTTResponseEndpoints, Zigbee2MQTTScene} from 'lib/types/api';
-import type * as zhc from 'zigbee-herdsman-converters';
+import type {Zigbee2MQTTAPI, Zigbee2MQTTResponse, Zigbee2MQTTResponseEndpoints, Zigbee2MQTTScene} from "lib/types/api";
+import type * as zhc from "zigbee-herdsman-converters";
 
-import {exec} from 'child_process';
-import assert from 'node:assert';
-import crypto from 'node:crypto';
-import fs from 'node:fs';
-import path from 'node:path';
+import {exec} from "child_process";
+import assert from "node:assert";
+import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
 
-import equals from 'fast-deep-equal/es6';
-import humanizeDuration from 'humanize-duration';
+import equals from "fast-deep-equal/es6";
+import humanizeDuration from "humanize-duration";
 
-import data from './data';
+import data from "./data";
 
-const BASE64_IMAGE_REGEX = new RegExp(`data:image/(?<extension>.+);base64,(?<data>.+)`);
+const BASE64_IMAGE_REGEX = /data:image\/(?<extension>.+);base64,(?<data>.+)/;
 
 function pad(num: number): string {
     const norm = Math.floor(Math.abs(num));
-    return (norm < 10 ? '0' : '') + norm;
+    return (norm < 10 ? "0" : "") + norm;
 }
 
 // construct a local ISO8601 string (instead of UTC-based)
@@ -25,23 +25,23 @@ function pad(num: number): string {
 //  - ISO8601 (local) = 2019-03-01T16:32:45.941+0100 (for timezone GMT+1)
 function toLocalISOString(date: Date): string {
     const tzOffset = -date.getTimezoneOffset();
-    const plusOrMinus = tzOffset >= 0 ? '+' : '-';
+    const plusOrMinus = tzOffset >= 0 ? "+" : "-";
 
     return (
         date.getFullYear() +
-        '-' +
+        "-" +
         pad(date.getMonth() + 1) +
-        '-' +
+        "-" +
         pad(date.getDate()) +
-        'T' +
+        "T" +
         pad(date.getHours()) +
-        ':' +
+        ":" +
         pad(date.getMinutes()) +
-        ':' +
+        ":" +
         pad(date.getSeconds()) +
         plusOrMinus +
         pad(tzOffset / 60) +
-        ':' +
+        ":" +
         pad(tzOffset % 60)
     );
 }
@@ -51,7 +51,7 @@ function capitalize(s: string): string {
 }
 
 async function getZigbee2MQTTVersion(includeCommitHash = true): Promise<{commitHash?: string; version: string}> {
-    const packageJSON = await import('../../package.json');
+    const packageJSON = await import("../../package.json");
     const version = packageJSON.version;
     let commitHash: string | undefined;
 
@@ -60,14 +60,14 @@ async function getZigbee2MQTTVersion(includeCommitHash = true): Promise<{commitH
     }
 
     return await new Promise((resolve) => {
-        exec('git rev-parse --short=8 HEAD', (error, stdout) => {
+        exec("git rev-parse --short=8 HEAD", (error, stdout) => {
             commitHash = stdout.trim();
 
-            if (error || commitHash === '') {
+            if (error || commitHash === "") {
                 try {
-                    commitHash = fs.readFileSync(path.join(__dirname, '..', '..', 'dist', '.hash'), 'utf-8');
+                    commitHash = fs.readFileSync(path.join(__dirname, "..", "..", "dist", ".hash"), "utf-8");
                 } catch {
-                    commitHash = 'unknown';
+                    commitHash = "unknown";
                 }
             }
 
@@ -78,17 +78,17 @@ async function getZigbee2MQTTVersion(includeCommitHash = true): Promise<{commitH
 
 async function getDependencyVersion(depend: string): Promise<{version: string}> {
     const packageJsonPath = require.resolve(`${depend}/package.json`);
-    const version = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')).version;
+    const version = JSON.parse(fs.readFileSync(packageJsonPath, "utf8")).version;
     return {version};
 }
 
-function formatDate(time: number, type: 'ISO_8601' | 'ISO_8601_local' | 'epoch' | 'relative'): string | number {
-    if (type === 'ISO_8601') return new Date(time).toISOString();
-    else if (type === 'ISO_8601_local') return toLocalISOString(new Date(time));
-    else if (type === 'epoch') return time;
+function formatDate(time: number, type: "ISO_8601" | "ISO_8601_local" | "epoch" | "relative"): string | number {
+    if (type === "ISO_8601") return new Date(time).toISOString();
+    else if (type === "ISO_8601_local") return toLocalISOString(new Date(time));
+    else if (type === "epoch") return time;
     else {
         // relative
-        return humanizeDuration(Date.now() - time, {language: 'en', largest: 2, round: true}) + ' ago';
+        return humanizeDuration(Date.now() - time, {language: "en", largest: 2, round: true}) + " ago";
     }
 }
 
@@ -130,11 +130,11 @@ function getResponse<T extends Zigbee2MQTTResponseEndpoints>(
     if (error !== undefined) {
         const response: Zigbee2MQTTResponse<T> = {
             data: {}, // always return an empty `data` payload on error
-            status: 'error',
+            status: "error",
             error: error,
         };
 
-        if (typeof request === 'object' && request.transaction !== undefined) {
+        if (typeof request === "object" && request.transaction !== undefined) {
             response.transaction = request.transaction;
         }
 
@@ -142,10 +142,10 @@ function getResponse<T extends Zigbee2MQTTResponseEndpoints>(
     } else {
         const response: Zigbee2MQTTResponse<T> = {
             data, // valid from error check
-            status: 'ok',
+            status: "ok",
         };
 
-        if (typeof request === 'object' && request.transaction !== undefined) {
+        if (typeof request === "object" && request.transaction !== undefined) {
             response.transaction = request.transaction;
         }
 
@@ -177,7 +177,7 @@ function removeNullPropertiesFromObject(obj: KeyValue, ignoreKeys: string[] = []
 
         if (value == null) {
             delete obj[key];
-        } else if (typeof value === 'object') {
+        } else if (typeof value === "object") {
             removeNullPropertiesFromObject(value, ignoreKeys);
         }
     }
@@ -185,7 +185,7 @@ function removeNullPropertiesFromObject(obj: KeyValue, ignoreKeys: string[] = []
 
 function toNetworkAddressHex(value: number): string {
     const hex = value.toString(16);
-    return `0x${'0'.repeat(4 - hex.length)}${hex}`;
+    return `0x${"0".repeat(4 - hex.length)}${hex}`;
 }
 
 function charRange(start: string, stop: string): number[] {
@@ -196,7 +196,7 @@ function charRange(start: string, stop: string): number[] {
     return result;
 }
 
-const controlCharacters = [...charRange('\u0000', '\u001F'), ...charRange('\u007f', '\u009F'), ...charRange('\ufdd0', '\ufdef')];
+const controlCharacters = [...charRange("\u0000", "\u001F"), ...charRange("\u007f", "\u009F"), ...charRange("\ufdd0", "\ufdef")];
 
 function containsControlCharacter(str: string): boolean {
     for (let i = 0; i < str.length; i++) {
@@ -225,10 +225,10 @@ function validateFriendlyName(name: string, throwFirstError = false): string[] {
     const errors = [];
 
     if (name.length === 0) errors.push(`friendly_name must be at least 1 char long`);
-    if (name.endsWith('/') || name.startsWith('/')) errors.push(`friendly_name is not allowed to end or start with /`);
+    if (name.endsWith("/") || name.startsWith("/")) errors.push(`friendly_name is not allowed to end or start with /`);
     if (containsControlCharacter(name)) errors.push(`friendly_name is not allowed to contain control char`);
     if (name.match(/.*\/\d*$/)) errors.push(`Friendly name cannot end with a "/DIGIT" ('${name}')`);
-    if (name.includes('#') || name.includes('+')) {
+    if (name.includes("#") || name.includes("+")) {
         errors.push(`MQTT wildcard (+ and #) not allowed in friendly_name ('${name}')`);
     }
 
@@ -246,7 +246,7 @@ function sleep(seconds: number): Promise<void> {
 function sanitizeImageParameter(parameter: string): string {
     const replaceByDash = [/\?/g, /&/g, /[^a-z\d\- _./:]/gi];
     let sanitized = parameter;
-    replaceByDash.forEach((r) => (sanitized = sanitized.replace(r, '-')));
+    replaceByDash.forEach((r) => (sanitized = sanitized.replace(r, "-")));
     return sanitized;
 }
 
@@ -271,7 +271,7 @@ function isAvailabilityEnabledForEntity(entity: Device | Group, settings: Settin
 }
 
 function isZHEndpoint(obj: unknown): obj is zh.Endpoint {
-    return obj?.constructor.name.toLowerCase() === 'endpoint';
+    return obj?.constructor.name.toLowerCase() === "endpoint";
 }
 
 function flatten<Type>(arr: Type[][]): Type[] {
@@ -283,7 +283,7 @@ function arrayUnique<Type>(arr: Type[]): Type[] {
 }
 
 function isZHGroup(obj: unknown): obj is zh.Group {
-    return obj?.constructor.name.toLowerCase() === 'group';
+    return obj?.constructor.name.toLowerCase() === "group";
 }
 
 const hours = (hours: number): number => 1000 * 60 * 60 * hours;
@@ -303,9 +303,9 @@ async function publishLastSeen(
      * - In case reason !== messageEmitted, controller.ts will call this based on the zigbee-herdsman
      *      lastSeenChanged event.
      */
-    const allow = data.reason !== 'messageEmitted' || (data.reason === 'messageEmitted' && allowMessageEmitted);
-    if (settings.advanced.last_seen && settings.advanced.last_seen !== 'disable' && allow) {
-        await publishEntityState(data.device, {}, 'lastSeenChanged');
+    const allow = data.reason !== "messageEmitted" || (data.reason === "messageEmitted" && allowMessageEmitted);
+    if (settings.advanced.last_seen && settings.advanced.last_seen !== "disable" && allow) {
+        await publishEntityState(data.device, {}, "lastSeenChanged");
     }
 }
 
@@ -320,31 +320,31 @@ function filterProperties(filter: string[] | undefined, data: KeyValue): void {
 }
 
 export function isNumericExpose(expose: zhc.Expose): expose is zhc.Numeric {
-    return expose?.type === 'numeric';
+    return expose?.type === "numeric";
 }
 
 export function assertEnumExpose(expose: zhc.Expose): asserts expose is zhc.Enum {
-    assert(expose?.type === 'enum');
+    assert(expose?.type === "enum");
 }
 
 export function assertNumericExpose(expose: zhc.Expose): asserts expose is zhc.Numeric {
-    assert(expose?.type === 'numeric');
+    assert(expose?.type === "numeric");
 }
 
 export function assertBinaryExpose(expose: zhc.Expose): asserts expose is zhc.Binary {
-    assert(expose?.type === 'binary');
+    assert(expose?.type === "binary");
 }
 
 export function isEnumExpose(expose: zhc.Expose): expose is zhc.Enum {
-    return expose?.type === 'enum';
+    return expose?.type === "enum";
 }
 
 export function isBinaryExpose(expose: zhc.Expose): expose is zhc.Binary {
-    return expose?.type === 'binary';
+    return expose?.type === "binary";
 }
 
 export function isLightExpose(expose: zhc.Expose): expose is zhc.Light {
-    return expose.type === 'light';
+    return expose.type === "light";
 }
 
 function getScenes(entity: zh.Endpoint | zh.Group): Zigbee2MQTTScene[] {
@@ -354,9 +354,9 @@ function getScenes(entity: zh.Endpoint | zh.Group): Zigbee2MQTTScene[] {
 
     for (const endpoint of endpoints) {
         for (const [key, data] of Object.entries(endpoint.meta?.scenes || {})) {
-            const split = key.split('_');
-            const sceneID = parseInt(split[0], 10);
-            const sceneGroupID = parseInt(split[1], 10);
+            const split = key.split("_");
+            const sceneID = Number.parseInt(split[0], 10);
+            const sceneGroupID = Number.parseInt(split[1], 10);
             if (sceneGroupID === groupID) {
                 scenes[sceneID] = {id: sceneID, name: (data as KeyValue).name || `Scene ${sceneID}`};
             }
@@ -367,7 +367,7 @@ function getScenes(entity: zh.Endpoint | zh.Group): Zigbee2MQTTScene[] {
 }
 
 function deviceNotCoordinator(device: zh.Device): boolean {
-    return device.type !== 'Coordinator';
+    return device.type !== "Coordinator";
 }
 
 function matchBase64File(value: string | undefined): {extension: string; data: string} | false {
@@ -382,11 +382,11 @@ function matchBase64File(value: string | undefined): {extension: string; data: s
 }
 
 function saveBase64DeviceIcon(base64Match: {extension: string; data: string}): string {
-    const md5Hash = crypto.createHash('md5').update(base64Match.data).digest('hex');
+    const md5Hash = crypto.createHash("md5").update(base64Match.data).digest("hex");
     const fileSettings = `device_icons/${md5Hash}.${base64Match.extension}`;
     const file = path.join(data.getPath(), fileSettings);
     fs.mkdirSync(path.dirname(file), {recursive: true});
-    fs.writeFileSync(file, base64Match.data, {encoding: 'base64'});
+    fs.writeFileSync(file, base64Match.data, {encoding: "base64"});
     return fileSettings;
 }
 

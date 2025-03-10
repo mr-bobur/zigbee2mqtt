@@ -1,39 +1,39 @@
-import fs from 'node:fs';
+import fs from "node:fs";
 
-import objectAssignDeep from 'object-assign-deep';
+import objectAssignDeep from "object-assign-deep";
 
-import data from './util/data';
-import logger from './util/logger';
-import * as settings from './util/settings';
-import utils from './util/utils';
+import data from "./util/data";
+import logger from "./util/logger";
+import * as settings from "./util/settings";
+import utils from "./util/utils";
 
 const saveInterval = 1000 * 60 * 5; // 5 minutes
 
 const dontCacheProperties = [
-    'action',
-    'action_.*',
-    'button',
-    'button_left',
-    'button_right',
-    'forgotten',
-    'keyerror',
-    'step_size',
-    'transition_time',
-    'group_list',
-    'group_capacity',
-    'no_occupancy_since',
-    'step_mode',
-    'transition_time',
-    'duration',
-    'elapsed',
-    'from_side',
-    'to_side',
-    'illuminance_lux', // removed in z2m 2.0.0
+    "action",
+    "action_.*",
+    "button",
+    "button_left",
+    "button_right",
+    "forgotten",
+    "keyerror",
+    "step_size",
+    "transition_time",
+    "group_list",
+    "group_capacity",
+    "no_occupancy_since",
+    "step_mode",
+    "transition_time",
+    "duration",
+    "elapsed",
+    "from_side",
+    "to_side",
+    "illuminance_lux", // removed in z2m 2.0.0
 ];
 
 class State {
     private state: {[s: string | number]: KeyValue} = {};
-    private file = data.joinPath('state.json');
+    private file = data.joinPath("state.json");
     private timer?: NodeJS.Timeout;
 
     constructor(
@@ -54,7 +54,7 @@ class State {
     stop(): void {
         // Remove any invalid states (ie when the device has left the network) when the system is stopped
         Object.keys(this.state)
-            .filter((k) => typeof k === 'string' && !this.zigbee.resolveEntity(k)) // string key = ieeeAddr
+            .filter((k) => typeof k === "string" && !this.zigbee.resolveEntity(k)) // string key = ieeeAddr
             .forEach((k) => delete this.state[k]);
 
         clearTimeout(this.timer);
@@ -64,7 +64,7 @@ class State {
     private load(): void {
         if (fs.existsSync(this.file)) {
             try {
-                this.state = JSON.parse(fs.readFileSync(this.file, 'utf8'));
+                this.state = JSON.parse(fs.readFileSync(this.file, "utf8"));
                 logger.debug(`Loaded state from file ${this.file}`);
             } catch (error) {
                 logger.debug(`Failed to load state from file ${this.file} (corrupt file?) (${(error as Error).message})`);
@@ -79,7 +79,7 @@ class State {
             logger.debug(`Saving state to file ${this.file}`);
             const json = JSON.stringify(this.state, null, 4);
             try {
-                fs.writeFileSync(this.file, json, 'utf8');
+                fs.writeFileSync(this.file, json, "utf8");
             } catch (error) {
                 logger.error(`Failed to write state to '${this.file}' (${error})`);
             }
@@ -109,8 +109,8 @@ class State {
         return toState;
     }
 
-    remove(ID: string | number): void {
-        delete this.state[ID];
+    remove(id: string | number): void {
+        delete this.state[id];
     }
 }
 

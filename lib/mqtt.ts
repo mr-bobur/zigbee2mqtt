@@ -1,17 +1,17 @@
-import type {IClientOptions, IClientPublishOptions, MqttClient} from 'mqtt';
+import type {IClientOptions, IClientPublishOptions, MqttClient} from "mqtt";
 
-import type {Zigbee2MQTTAPI} from './types/api';
+import type {Zigbee2MQTTAPI} from "./types/api";
 
-import fs from 'node:fs';
+import fs from "node:fs";
 
-import bind from 'bind-decorator';
-import {connectAsync} from 'mqtt';
+import bind from "bind-decorator";
+import {connectAsync} from "mqtt";
 
-import logger from './util/logger';
-import * as settings from './util/settings';
-import utils from './util/utils';
+import logger from "./util/logger";
+import * as settings from "./util/settings";
+import utils from "./util/utils";
 
-const NS = 'z2m:mqtt';
+const NS = "z2m:mqtt";
 
 export default class MQTT {
     private publishedTopics: Set<string> = new Set();
@@ -35,7 +35,7 @@ export default class MQTT {
         const options: IClientOptions = {
             will: {
                 topic: `${settings.get().mqtt.base_topic}/bridge/state`,
-                payload: Buffer.from(JSON.stringify({state: 'offline'})),
+                payload: Buffer.from(JSON.stringify({state: "offline"})),
                 retain: settings.get().mqtt.force_disable_retain ? false : true,
                 qos: 1,
             },
@@ -89,21 +89,21 @@ export default class MQTT {
         // https://github.com/Koenkk/zigbee2mqtt/issues/9822
         this.client.stream.setMaxListeners(0);
 
-        this.client.on('error', (err) => {
+        this.client.on("error", (err) => {
             logger.error(`MQTT error: ${err.message}`);
         });
 
         if (mqttSettings.version != undefined && mqttSettings.version >= 5) {
-            this.client.on('disconnect', (packet) => {
+            this.client.on("disconnect", (packet) => {
                 logger.error(`MQTT disconnect: reason ${packet.reasonCode} (${packet.properties?.reasonString})`);
             });
         }
 
-        this.client.on('message', this.onMessage);
+        this.client.on("message", this.onMessage);
 
         await this.onConnect();
 
-        this.client.on('connect', this.onConnect);
+        this.client.on("connect", this.onConnect);
 
         this.republishRetainedTimer = setTimeout(async () => {
             // Republish retained messages in case MQTT broker does not persist them.
@@ -116,7 +116,7 @@ export default class MQTT {
         // Set timer at interval to check if connected to MQTT server.
         this.connectionTimer = setInterval(() => {
             if (!this.isConnected()) {
-                logger.error('Not connected to MQTT server!');
+                logger.error("Not connected to MQTT server!");
             }
         }, utils.seconds(10));
     }
@@ -125,11 +125,11 @@ export default class MQTT {
         clearTimeout(this.connectionTimer);
         clearTimeout(this.republishRetainedTimer);
 
-        const stateData: Zigbee2MQTTAPI['bridge/state'] = {state: 'offline'};
+        const stateData: Zigbee2MQTTAPI["bridge/state"] = {state: "offline"};
 
-        await this.publish('bridge/state', JSON.stringify(stateData), {retain: true, qos: 0});
+        await this.publish("bridge/state", JSON.stringify(stateData), {retain: true, qos: 0});
         this.eventBus.removeListeners(this);
-        logger.info('Disconnecting from MQTT server');
+        logger.info("Disconnecting from MQTT server");
         await this.client?.endAsync();
     }
 
@@ -142,11 +142,11 @@ export default class MQTT {
     }
 
     @bind private async onConnect(): Promise<void> {
-        logger.info('Connected to MQTT server');
+        logger.info("Connected to MQTT server");
 
-        const stateData: Zigbee2MQTTAPI['bridge/state'] = {state: 'online'};
+        const stateData: Zigbee2MQTTAPI["bridge/state"] = {state: "online"};
 
-        await this.publish('bridge/state', JSON.stringify(stateData), {retain: true, qos: 0});
+        await this.publish("bridge/state", JSON.stringify(stateData), {retain: true, qos: 0});
         await this.subscribe(`${settings.get().mqtt.base_topic}/#`);
     }
 

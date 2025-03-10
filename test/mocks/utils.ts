@@ -1,7 +1,7 @@
 export type EventHandler = (...args: unknown[]) => unknown;
 
 export async function flushPromises(): Promise<void> {
-    const nodeTimers = await vi.importActual<typeof import('node:timers')>('node:timers');
+    const nodeTimers = await vi.importActual<typeof import("node:timers")>("node:timers");
 
     return await new Promise(nodeTimers.setImmediate);
 }

@@ -1,9 +1,9 @@
-import type * as zhc from 'zigbee-herdsman-converters';
+import type * as zhc from "zigbee-herdsman-converters";
 
-import {addExternalDefinition, removeExternalDefinitions} from 'zigbee-herdsman-converters';
+import {addExternalDefinition, removeExternalDefinitions} from "zigbee-herdsman-converters";
 
-import logger from '../util/logger';
-import ExternalJSExtension from './externalJS';
+import logger from "../util/logger";
+import ExternalJSExtension from "./externalJS";
 
 type ModuleExports = zhc.ExternalDefinitionWithExtend | zhc.ExternalDefinitionWithExtend[];
 
@@ -27,8 +27,8 @@ export default class ExternalConverters extends ExternalJSExtension<ModuleExport
             enableDisableExtension,
             restartCallback,
             addExtension,
-            'converter',
-            'external_converters',
+            "converter",
+            "external_converters",
         );
     }
 

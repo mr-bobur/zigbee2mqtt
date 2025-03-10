@@ -1,15 +1,15 @@
-import type {LogLevel} from 'lib/util/settings';
-import type Transport from 'winston-transport';
+import type {LogLevel} from "lib/util/settings";
+import type Transport from "winston-transport";
 
-let level: LogLevel = 'info';
-let debugNamespaceIgnore: string = '';
+let level: LogLevel = "info";
+let debugNamespaceIgnore = "";
 let namespacedLevels: Record<string, LogLevel> = {};
 let transports: Transport[] = [];
-let transportsEnabled: boolean = false;
+let transportsEnabled = false;
 const getMessage = (messageOrLambda: string | (() => string)): string => (messageOrLambda instanceof Function ? messageOrLambda() : messageOrLambda);
 
 export const mockLogger = {
-    log: vi.fn().mockImplementation((level, message, namespace = 'z2m') => {
+    log: vi.fn().mockImplementation((level, message, namespace = "z2m") => {
         if (transportsEnabled) {
             for (const transport of transports) {
                 transport.log!({level, message, namespace}, () => {});
@@ -17,10 +17,10 @@ export const mockLogger = {
         }
     }),
     init: vi.fn(),
-    info: vi.fn().mockImplementation((messageOrLambda, namespace = 'z2m') => mockLogger.log('info', getMessage(messageOrLambda), namespace)),
-    warning: vi.fn().mockImplementation((messageOrLambda, namespace = 'z2m') => mockLogger.log('warning', getMessage(messageOrLambda), namespace)),
-    error: vi.fn().mockImplementation((messageOrLambda, namespace = 'z2m') => mockLogger.log('error', getMessage(messageOrLambda), namespace)),
-    debug: vi.fn().mockImplementation((messageOrLambda, namespace = 'z2m') => mockLogger.log('debug', getMessage(messageOrLambda), namespace)),
+    info: vi.fn().mockImplementation((messageOrLambda, namespace = "z2m") => mockLogger.log("info", getMessage(messageOrLambda), namespace)),
+    warning: vi.fn().mockImplementation((messageOrLambda, namespace = "z2m") => mockLogger.log("warning", getMessage(messageOrLambda), namespace)),
+    error: vi.fn().mockImplementation((messageOrLambda, namespace = "z2m") => mockLogger.log("error", getMessage(messageOrLambda), namespace)),
+    debug: vi.fn().mockImplementation((messageOrLambda, namespace = "z2m") => mockLogger.log("debug", getMessage(messageOrLambda), namespace)),
     cleanup: vi.fn(),
     logOutput: vi.fn(),
     add: (transport: Transport): void => {
@@ -50,6 +50,6 @@ export const mockLogger = {
     end: vi.fn(),
 };
 
-vi.mock('../../lib/util/logger', () => ({
+vi.mock("../../lib/util/logger", () => ({
     default: mockLogger,
 }));

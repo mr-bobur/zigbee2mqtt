@@ -1,17 +1,17 @@
-import assert from 'node:assert';
+import assert from "node:assert";
 
-import * as zhc from 'zigbee-herdsman-converters';
-import {access, Numeric} from 'zigbee-herdsman-converters';
-import {CustomClusters} from 'zigbee-herdsman/dist/zspec/zcl/definition/tstype';
+import * as zhc from "zigbee-herdsman-converters";
+import {Numeric, access} from "zigbee-herdsman-converters";
+import type {CustomClusters} from "zigbee-herdsman/dist/zspec/zcl/definition/tstype";
 
-import * as settings from '../util/settings';
+import * as settings from "../util/settings";
 
-const LINKQUALITY = new Numeric('linkquality', access.STATE)
-    .withUnit('lqi')
-    .withDescription('Link quality (signal strength)')
+const LINKQUALITY = new Numeric("linkquality", access.STATE)
+    .withUnit("lqi")
+    .withDescription("Link quality (signal strength)")
     .withValueMin(0)
     .withValueMax(255)
-    .withCategory('diagnostic');
+    .withCategory("diagnostic");
 
 export default class Device {
     public zh: zh.Device;
@@ -29,16 +29,16 @@ export default class Device {
         return {...settings.get().device_options, ...deviceOptions};
     }
     get name(): string {
-        return this.zh.type === 'Coordinator' ? 'Coordinator' : this.options?.friendly_name;
+        return this.zh.type === "Coordinator" ? "Coordinator" : this.options?.friendly_name;
     }
     get isSupported(): boolean {
-        return this.zh.type === 'Coordinator' || Boolean(this.definition && !this.definition.generated);
+        return this.zh.type === "Coordinator" || Boolean(this.definition && !this.definition.generated);
     }
     get customClusters(): CustomClusters {
         return this.zh.customClusters;
     }
     get otaExtraMetas(): zhc.Ota.ExtraMetas {
-        return typeof this.definition?.ota === 'object' ? this.definition.ota : {};
+        return typeof this.definition?.ota === "object" ? this.definition.ota : {};
     }
 
     constructor(device: zh.Device) {
@@ -47,8 +47,8 @@ export default class Device {
 
     exposes(): zhc.Expose[] {
         const exposes: zhc.Expose[] = [];
-        assert(this.definition, 'Cannot retreive exposes before definition is resolved');
-        if (typeof this.definition.exposes == 'function') {
+        assert(this.definition, "Cannot retreive exposes before definition is resolved");
+        if (typeof this.definition.exposes == "function") {
             const options: KeyValue = this.options;
             exposes.push(...this.definition.exposes(this.zh, options));
         } else {
@@ -58,7 +58,7 @@ export default class Device {
         return exposes;
     }
 
-    async resolveDefinition(ignoreCache: boolean = false): Promise<void> {
+    async resolveDefinition(ignoreCache = false): Promise<void> {
         if (!this.zh.interviewing && (!this.definition || this._definitionModelID !== this.zh.modelID || ignoreCache)) {
             this.definition = await zhc.findByDevice(this.zh, true);
             this._definitionModelID = this.zh.modelID;
@@ -66,7 +66,7 @@ export default class Device {
     }
 
     ensureInSettings(): void {
-        if (this.zh.type !== 'Coordinator' && !settings.getDevice(this.zh.ieeeAddr)) {
+        if (this.zh.type !== "Coordinator" && !settings.getDevice(this.zh.ieeeAddr)) {
             settings.addDevice(this.zh.ieeeAddr);
         }
     }
@@ -74,8 +74,8 @@ export default class Device {
     endpoint(key?: string | number): zh.Endpoint | undefined {
         let endpoint: zh.Endpoint | undefined;
 
-        if (key == null || key == '') {
-            key = 'default';
+        if (key == null || key == "") {
+            key = "default";
         }
 
         if (!isNaN(Number(key))) {
@@ -85,13 +85,13 @@ export default class Device {
 
             if (ID) {
                 endpoint = this.zh.getEndpoint(ID);
-            } else if (key === 'default') {
+            } else if (key === "default") {
                 endpoint = this.zh.endpoints[0];
             } else {
                 return undefined;
             }
         } else {
-            if (key !== 'default') {
+            if (key !== "default") {
                 return undefined;
             }
 
@@ -114,14 +114,14 @@ export default class Device {
         }
 
         /* v8 ignore next */
-        return epName === 'default' ? undefined : epName;
+        return epName === "default" ? undefined : epName;
     }
 
     getEndpointNames(): string[] {
         const names: string[] = [];
 
         for (const name in this.definition?.endpoint?.(this.zh) ?? {}) {
-            if (name !== 'default') {
+            if (name !== "default") {
                 names.push(name);
             }
         }

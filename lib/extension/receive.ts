@@ -1,16 +1,16 @@
-import assert from 'node:assert';
+import assert from "node:assert";
 
-import bind from 'bind-decorator';
-import debounce from 'debounce';
-import stringify from 'json-stable-stringify-without-jsonify';
-import throttle from 'throttleit';
+import bind from "bind-decorator";
+import debounce from "debounce";
+import stringify from "json-stable-stringify-without-jsonify";
+import throttle from "throttleit";
 
-import * as zhc from 'zigbee-herdsman-converters';
+import * as zhc from "zigbee-herdsman-converters";
 
-import logger from '../util/logger';
-import * as settings from '../util/settings';
-import utils from '../util/utils';
-import Extension from './extension';
+import logger from "../util/logger";
+import * as settings from "../util/settings";
+import utils from "../util/utils";
+import Extension from "./extension";
 
 type DebounceFunction = (() => void) & {clear(): void} & {flush(): void};
 
@@ -33,8 +33,8 @@ export default class Receive extends Extension {
         if (
             data.entity.isDevice() &&
             this.debouncers[data.entity.ieeeAddr] &&
-            data.stateChangeReason !== 'publishDebounce' &&
-            data.stateChangeReason !== 'lastSeenChanged'
+            data.stateChangeReason !== "publishDebounce" &&
+            data.stateChangeReason !== "lastSeenChanged"
         ) {
             for (const key of Object.keys(data.payload)) {
                 delete this.debouncers[data.entity.ieeeAddr].payload[key];
@@ -47,7 +47,7 @@ export default class Receive extends Extension {
             this.debouncers[device.ieeeAddr] = {
                 payload: {},
                 publish: debounce(async () => {
-                    await this.publishEntityState(device, this.debouncers[device.ieeeAddr].payload, 'publishDebounce');
+                    await this.publishEntityState(device, this.debouncers[device.ieeeAddr].payload, "publishDebounce");
                     this.debouncers[device.ieeeAddr].payload = {};
                 }, time * 1000),
             };
@@ -81,7 +81,7 @@ export default class Receive extends Extension {
         // By updating cache we make sure that state cache is always up-to-date.
         this.state.set(device, payload);
 
-        await this.throttlers[device.ieeeAddr].publish(device, payload, 'publishThrottle');
+        await this.throttlers[device.ieeeAddr].publish(device, payload, "publishThrottle");
     }
 
     // if debounce_ignore are specified (Array of strings)
@@ -93,7 +93,7 @@ export default class Receive extends Extension {
         Object.keys(oldPayload)
             .filter((key) => (debounceIgnore || []).includes(key))
             .forEach((key) => {
-                if (typeof newPayload[key] !== 'undefined' && newPayload[key] !== oldPayload[key]) {
+                if (typeof newPayload[key] !== "undefined" && newPayload[key] !== oldPayload[key]) {
                     result = true;
                 }
             });
@@ -107,7 +107,7 @@ export default class Receive extends Extension {
 
         if (!data.device.definition || data.device.zh.interviewing) {
             logger.debug(`Skipping message, still interviewing`);
-            await utils.publishLastSeen({device: data.device, reason: 'messageEmitted'}, settings.get(), true, this.publishEntityState);
+            await utils.publishLastSeen({device: data.device, reason: "messageEmitted"}, settings.get(), true, this.publishEntityState);
             return;
         }
 
@@ -117,13 +117,13 @@ export default class Receive extends Extension {
         });
 
         // Check if there is an available converter, genOta messages are not interesting.
-        const ignoreClusters: (string | number)[] = ['genOta', 'genTime', 'genBasic', 'genPollCtrl'];
+        const ignoreClusters: (string | number)[] = ["genOta", "genTime", "genBasic", "genPollCtrl"];
         if (converters.length == 0 && !ignoreClusters.includes(data.cluster)) {
             logger.debug(
                 `No converter available for '${data.device.definition.model}' with ` +
                     `cluster '${data.cluster}' and type '${data.type}' and data '${stringify(data.data)}'`,
             );
-            await utils.publishLastSeen({device: data.device, reason: 'messageEmitted'}, settings.get(), true, this.publishEntityState);
+            await utils.publishLastSeen({device: data.device, reason: "messageEmitted"}, settings.get(), true, this.publishEntityState);
             return;
         }
 
@@ -182,7 +182,7 @@ export default class Receive extends Extension {
         if (!utils.objectIsEmpty(payload)) {
             await publish(payload);
         } else {
-            await utils.publishLastSeen({device: data.device, reason: 'messageEmitted'}, settings.get(), true, this.publishEntityState);
+            await utils.publishLastSeen({device: data.device, reason: "messageEmitted"}, settings.get(), true, this.publishEntityState);
         }
     }
 }

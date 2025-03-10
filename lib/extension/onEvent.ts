@@ -1,7 +1,7 @@
-import * as zhc from 'zigbee-herdsman-converters';
+import * as zhc from "zigbee-herdsman-converters";
 
-import utils from '../util/utils';
-import Extension from './extension';
+import utils from "../util/utils";
+import Extension from "./extension";
 
 /**
  * This extension calls the zigbee-herdsman-converters onEvent.
@@ -9,19 +9,19 @@ import Extension from './extension';
 export default class OnEvent extends Extension {
     override async start(): Promise<void> {
         for (const device of this.zigbee.devicesIterator(utils.deviceNotCoordinator)) {
-            this.callOnEvent(device, 'start', {}).catch(utils.noop);
+            this.callOnEvent(device, "start", {}).catch(utils.noop);
         }
 
-        this.eventBus.onDeviceMessage(this, (data) => this.callOnEvent(data.device, 'message', this.convertData(data)));
-        this.eventBus.onDeviceJoined(this, (data) => this.callOnEvent(data.device, 'deviceJoined', this.convertData(data)));
-        this.eventBus.onDeviceInterview(this, (data) => this.callOnEvent(data.device, 'deviceInterview', this.convertData(data)));
-        this.eventBus.onDeviceAnnounce(this, (data) => this.callOnEvent(data.device, 'deviceAnnounce', this.convertData(data)));
+        this.eventBus.onDeviceMessage(this, (data) => this.callOnEvent(data.device, "message", this.convertData(data)));
+        this.eventBus.onDeviceJoined(this, (data) => this.callOnEvent(data.device, "deviceJoined", this.convertData(data)));
+        this.eventBus.onDeviceInterview(this, (data) => this.callOnEvent(data.device, "deviceInterview", this.convertData(data)));
+        this.eventBus.onDeviceAnnounce(this, (data) => this.callOnEvent(data.device, "deviceAnnounce", this.convertData(data)));
         this.eventBus.onDeviceNetworkAddressChanged(this, (data) =>
-            this.callOnEvent(data.device, 'deviceNetworkAddressChanged', this.convertData(data)),
+            this.callOnEvent(data.device, "deviceNetworkAddressChanged", this.convertData(data)),
         );
         this.eventBus.onEntityOptionsChanged(this, async (data) => {
             if (data.entity.isDevice()) {
-                await this.callOnEvent(data.entity, 'deviceOptionsChanged', data).then(() => this.eventBus.emitDevicesChanged());
+                await this.callOnEvent(data.entity, "deviceOptionsChanged", data).then(() => this.eventBus.emitDevicesChanged());
             }
         });
     }
@@ -34,7 +34,7 @@ export default class OnEvent extends Extension {
         await super.stop();
 
         for (const device of this.zigbee.devicesIterator(utils.deviceNotCoordinator)) {
-            await this.callOnEvent(device, 'stop', {});
+            await this.callOnEvent(device, "stop", {});
         }
     }
 
