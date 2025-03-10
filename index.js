@@ -1,29 +1,29 @@
-const semver = require('semver');
-const engines = require('./package.json').engines;
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
-const {exec} = require('child_process');
-require('source-map-support').install();
+const semver = require("semver");
+const engines = require("./package.json").engines;
+const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
+const {exec} = require("node:child_process");
+require("source-map-support").install();
 
 let controller;
 let stopping = false;
-const watchdog = process.env.Z2M_WATCHDOG != undefined;
+const watchdog = process.env.Z2M_WATCHDOG !== undefined;
 let watchdogCount = 0;
 let unsolicitedStop = false;
 // csv in minutes, default: 1min, 5min, 15min, 30min, 60min
 let watchdogDelays = [2000, 60000, 300000, 900000, 1800000, 3600000];
 
-if (watchdog && process.env.Z2M_WATCHDOG !== 'default') {
+if (watchdog && process.env.Z2M_WATCHDOG !== "default") {
     if (/^\d+(.\d+)?(,\d+(.\d+)?)*$/.test(process.env.Z2M_WATCHDOG)) {
-        watchdogDelays = process.env.Z2M_WATCHDOG.split(',').map((v) => Number.parseFloat(v) * 60000);
+        watchdogDelays = process.env.Z2M_WATCHDOG.split(",").map((v) => Number.parseFloat(v) * 60000);
     } else {
         console.log(`Invalid watchdog delays (must use number-only CSV format representing minutes, example: 'Z2M_WATCHDOG=1,5,15,30,60'.`);
         process.exit(1);
     }
 }
 
-const hashFile = path.join(__dirname, 'dist', '.hash');
+const hashFile = path.join(__dirname, "dist", ".hash");
 
 async function triggerWatchdog(code) {
     const delay = watchdogDelays[watchdogCount];
@@ -58,11 +58,11 @@ async function exit(code, restart = false) {
 
 async function currentHash() {
     return await new Promise((resolve) => {
-        exec('git rev-parse --short=8 HEAD', (error, stdout) => {
+        exec("git rev-parse --short=8 HEAD", (error, stdout) => {
             const commitHash = stdout.trim();
 
-            if (error || commitHash === '') {
-                resolve('unknown');
+            if (error || commitHash === "") {
+                resolve("unknown");
             } else {
                 resolve(commitHash);
             }
@@ -86,21 +86,21 @@ async function build(reason) {
         if (mb600 > os.totalmem() && !env.NODE_OPTIONS) {
             // Prevent OOM on tsc compile for system with low memory
             // https://github.com/Koenkk/zigbee2mqtt/issues/12034
-            env.NODE_OPTIONS = '--max_old_space_size=256';
+            env.NODE_OPTIONS = "--max_old_space_size=256";
         }
 
         // clean build, prevent failures due to tsc incremental building
-        exec('pnpm run prepack', {env, cwd: __dirname}, async (err, stdout, stderr) => {
+        exec("pnpm run prepack", {env, cwd: __dirname}, async (err, stdout, stderr) => {
             if (err) {
-                process.stdout.write(', failed\n');
+                process.stdout.write(", failed\n");
 
                 if (err.code === 134) {
-                    process.stderr.write('\n\nBuild failed; ran out-of-memory, free some memory (RAM) and start again\n\n');
+                    process.stderr.write("\n\nBuild failed; ran out-of-memory, free some memory (RAM) and start again\n\n");
                 }
 
                 reject(err);
             } else {
-                process.stdout.write(', finished\n');
+                process.stdout.write(", finished\n");
                 resolve();
             }
         });
@@ -109,19 +109,19 @@ async function build(reason) {
 
 async function checkDist() {
     if (!fs.existsSync(hashFile)) {
-        await build('initial build');
+        await build("initial build");
     }
 
-    const distHash = fs.readFileSync(hashFile, 'utf8');
+    const distHash = fs.readFileSync(hashFile, "utf8");
     const hash = await currentHash();
 
-    if (hash !== 'unknown' && distHash !== hash) {
-        await build('hash changed');
+    if (hash !== "unknown" && distHash !== hash) {
+        await build("hash changed");
     }
 }
 
 async function start() {
-    console.log(`Starting Zigbee2MQTT ${watchdog ? `with watchdog (${watchdogDelays})` : `without watchdog`}.`);
+    console.log(`Starting Zigbee2MQTT ${watchdog ? `with watchdog (${watchdogDelays})` : "without watchdog"}.`);
     await checkDist();
 
     // gc
@@ -133,12 +133,12 @@ async function start() {
         }
 
         // Validate settings
-        const settings = require('./dist/util/settings');
+        const settings = require("./dist/util/settings");
 
         settings.write(); // trigger initial writing of `ZIGBEE2MQTT_CONFIG_*` ENVs
         settings.reRead();
 
-        const settingsMigration = require('./dist/util/settingsMigration');
+        const settingsMigration = require("./dist/util/settingsMigration");
 
         settingsMigration.migrateIfNecessary();
 
@@ -147,22 +147,22 @@ async function start() {
         if (errors.length > 0) {
             unsolicitedStop = false;
 
-            console.log(`\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`);
-            console.log('            READ THIS CAREFULLY\n');
-            console.log(`Refusing to start because configuration is not valid, found the following errors:`);
+            console.log("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            console.log("            READ THIS CAREFULLY\n");
+            console.log("Refusing to start because configuration is not valid, found the following errors:");
 
             for (const error of errors) {
                 console.log(`- ${error}`);
             }
 
             console.log(`\nIf you don't know how to solve this, read https://www.zigbee2mqtt.io/guide/configuration`);
-            console.log(`\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n`);
+            console.log("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
 
             return await exit(1);
         }
     }
 
-    const {Controller} = require('./dist/controller');
+    const {Controller} = require("./dist/controller");
     controller = new Controller(restart, exit);
 
     await controller.start();
@@ -191,17 +191,17 @@ async function handleQuit() {
     }
 }
 
-if (require.main === module || require.main.filename.endsWith(path.sep + 'cli.js')) {
-    if (process.argv.length === 3 && process.argv[2] === 'writehash') {
+if (require.main === module || require.main.filename.endsWith(`${path.sep}cli.js`)) {
+    if (process.argv.length === 3 && process.argv[2] === "writehash") {
         writeHash();
     } else {
-        process.on('SIGINT', handleQuit);
-        process.on('SIGTERM', handleQuit);
+        process.on("SIGINT", handleQuit);
+        process.on("SIGTERM", handleQuit);
         start();
     }
 } else {
-    process.on('SIGINT', handleQuit);
-    process.on('SIGTERM', handleQuit);
+    process.on("SIGINT", handleQuit);
+    process.on("SIGTERM", handleQuit);
 
     module.exports = {start};
 }

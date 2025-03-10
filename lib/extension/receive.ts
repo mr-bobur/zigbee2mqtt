@@ -106,7 +106,7 @@ export default class Receive extends Extension {
         if (!data.device) return;
 
         if (!data.device.definition || data.device.zh.interviewing) {
-            logger.debug(`Skipping message, still interviewing`);
+            logger.debug("Skipping message, still interviewing");
             await utils.publishLastSeen({device: data.device, reason: "messageEmitted"}, settings.get(), true, this.publishEntityState);
             return;
         }
@@ -118,7 +118,7 @@ export default class Receive extends Extension {
 
         // Check if there is an available converter, genOta messages are not interesting.
         const ignoreClusters: (string | number)[] = ["genOta", "genTime", "genBasic", "genPollCtrl"];
-        if (converters.length == 0 && !ignoreClusters.includes(data.cluster)) {
+        if (converters.length === 0 && !ignoreClusters.includes(data.cluster)) {
             logger.debug(
                 `No converter available for '${data.device.definition.model}' with ` +
                     `cluster '${data.cluster}' and type '${data.type}' and data '${stringify(data.data)}'`,

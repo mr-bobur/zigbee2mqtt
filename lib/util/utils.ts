@@ -1,8 +1,8 @@
 import type {Zigbee2MQTTAPI, Zigbee2MQTTResponse, Zigbee2MQTTResponseEndpoints, Zigbee2MQTTScene} from "lib/types/api";
 import type * as zhc from "zigbee-herdsman-converters";
 
-import {exec} from "child_process";
 import assert from "node:assert";
+import {exec} from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -27,23 +27,7 @@ function toLocalISOString(date: Date): string {
     const tzOffset = -date.getTimezoneOffset();
     const plusOrMinus = tzOffset >= 0 ? "+" : "-";
 
-    return (
-        date.getFullYear() +
-        "-" +
-        pad(date.getMonth() + 1) +
-        "-" +
-        pad(date.getDate()) +
-        "T" +
-        pad(date.getHours()) +
-        ":" +
-        pad(date.getMinutes()) +
-        ":" +
-        pad(date.getSeconds()) +
-        plusOrMinus +
-        pad(tzOffset / 60) +
-        ":" +
-        pad(tzOffset % 60)
-    );
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}${plusOrMinus}${pad(tzOffset / 60)}:${pad(tzOffset % 60)}`;
 }
 
 function capitalize(s: string): string {
@@ -84,12 +68,11 @@ async function getDependencyVersion(depend: string): Promise<{version: string}> 
 
 function formatDate(time: number, type: "ISO_8601" | "ISO_8601_local" | "epoch" | "relative"): string | number {
     if (type === "ISO_8601") return new Date(time).toISOString();
-    else if (type === "ISO_8601_local") return toLocalISOString(new Date(time));
-    else if (type === "epoch") return time;
-    else {
-        // relative
-        return humanizeDuration(Date.now() - time, {language: "en", largest: 2, round: true}) + " ago";
-    }
+    if (type === "ISO_8601_local") return toLocalISOString(new Date(time));
+    if (type === "epoch") return time;
+
+    // relative
+    return `${humanizeDuration(Date.now() - time, {language: "en", largest: 2, round: true})} ago`;
 }
 
 function objectIsEmpty(object: object): boolean {
@@ -139,18 +122,17 @@ function getResponse<T extends Zigbee2MQTTResponseEndpoints>(
         }
 
         return response;
-    } else {
-        const response: Zigbee2MQTTResponse<T> = {
-            data, // valid from error check
-            status: "ok",
-        };
-
-        if (typeof request === "object" && request.transaction !== undefined) {
-            response.transaction = request.transaction;
-        }
-
-        return response;
     }
+    const response: Zigbee2MQTTResponse<T> = {
+        data, // valid from error check
+        status: "ok",
+    };
+
+    if (typeof request === "object" && request.transaction !== undefined) {
+        response.transaction = request.transaction;
+    }
+
+    return response;
 }
 
 function parseJSON(value: string, fallback: string): KeyValue | string {
@@ -224,9 +206,9 @@ function getAllFiles(path_: string): string[] {
 function validateFriendlyName(name: string, throwFirstError = false): string[] {
     const errors = [];
 
-    if (name.length === 0) errors.push(`friendly_name must be at least 1 char long`);
-    if (name.endsWith("/") || name.startsWith("/")) errors.push(`friendly_name is not allowed to end or start with /`);
-    if (containsControlCharacter(name)) errors.push(`friendly_name is not allowed to contain control char`);
+    if (name.length === 0) errors.push("friendly_name must be at least 1 char long");
+    if (name.endsWith("/") || name.startsWith("/")) errors.push("friendly_name is not allowed to end or start with /");
+    if (containsControlCharacter(name)) errors.push("friendly_name is not allowed to contain control char");
     if (name.match(/.*\/\d*$/)) errors.push(`Friendly name cannot end with a "/DIGIT" ('${name}')`);
     if (name.includes("#") || name.includes("+")) {
         errors.push(`MQTT wildcard (+ and #) not allowed in friendly_name ('${name}')`);

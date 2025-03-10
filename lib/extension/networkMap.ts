@@ -75,8 +75,7 @@ export default class NetworkMap extends Extension {
 
             // Add the device short network address, ieeaddr and scan note (if any)
             labels.push(
-                `${node.ieeeAddr} (${utils.toNetworkAddressHex(node.networkAddress)})` +
-                    (node.failed && node.failed.length ? `failed: ${node.failed.join(",")}` : ""),
+                `${node.ieeeAddr} (${utils.toNetworkAddressHex(node.networkAddress)})${node.failed?.length ? `failed: ${node.failed.join(",")}` : ""}`,
             );
 
             // Add the device model
@@ -94,9 +93,9 @@ export default class NetworkMap extends Extension {
             labels.push(lastSeen);
 
             // Shape the record according to device type
-            if (node.type == "Coordinator") {
+            if (node.type === "Coordinator") {
                 style = `style="bold, filled", fillcolor="${colors.fill.coordinator}", fontcolor="${colors.font.coordinator}"`;
-            } else if (node.type == "Router") {
+            } else if (node.type === "Router") {
                 style = `style="rounded, filled", fillcolor="${colors.fill.router}", fontcolor="${colors.font.router}"`;
             } else {
                 style = `style="rounded, dashed, filled", fillcolor="${colors.fill.enddevice}", fontcolor="${colors.font.enddevice}"`;
@@ -113,7 +112,7 @@ export default class NetworkMap extends Extension {
             topology.links
                 .filter((e) => e.source.ieeeAddr === node.ieeeAddr)
                 .forEach((e) => {
-                    const lineStyle = node.type == "EndDevice" ? "penwidth=1, " : !e.routes.length ? "penwidth=0.5, " : "penwidth=2, ";
+                    const lineStyle = node.type === "EndDevice" ? "penwidth=1, " : !e.routes.length ? "penwidth=0.5, " : "penwidth=2, ";
                     const lineWeight = !e.routes.length ? `weight=0, color="${colors.line.inactive}", ` : `weight=1, color="${colors.line.active}", `;
                     const textRoutes = e.routes.map((r) => utils.toNetworkAddressHex(r.destinationAddress));
                     const lineLabels = !e.routes.length ? `label="${e.linkquality}"` : `label="${e.linkquality} (routes: ${textRoutes.join(",")})"`;
@@ -131,7 +130,7 @@ export default class NetworkMap extends Extension {
         const text = [];
 
         text.push(`' paste into: https://www.planttext.com/`);
-        text.push(``);
+        text.push("");
         text.push("@startuml");
 
         topology.nodes
@@ -140,17 +139,16 @@ export default class NetworkMap extends Extension {
                 // Add friendly name
                 text.push(`card ${node.ieeeAddr} [`);
                 text.push(`${node.friendlyName}`);
-                text.push(`---`);
+                text.push("---");
 
                 // Add the device short network address, ieeaddr and scan note (if any)
                 text.push(
-                    `${node.ieeeAddr} (${utils.toNetworkAddressHex(node.networkAddress)})` +
-                        (node.failed && node.failed.length ? ` failed: ${node.failed.join(",")}` : ""),
+                    `${node.ieeeAddr} (${utils.toNetworkAddressHex(node.networkAddress)})${node.failed?.length ? ` failed: ${node.failed.join(",")}` : ""}`,
                 );
 
                 // Add the device model
                 if (node.type !== "Coordinator") {
-                    text.push(`---`);
+                    text.push("---");
                     const definition = (this.zigbee.resolveEntity(node.ieeeAddr) as Device).definition;
                     text.push(`${definition?.vendor} ${definition?.description} (${definition?.model})`);
                 }
@@ -161,10 +159,10 @@ export default class NetworkMap extends Extension {
                 if (date) {
                     lastSeen = utils.formatDate(date, "relative") as string;
                 }
-                text.push(`---`);
+                text.push("---");
                 text.push(lastSeen);
-                text.push(`]`);
-                text.push(``);
+                text.push("]");
+                text.push("");
             });
 
         /**
@@ -177,9 +175,9 @@ export default class NetworkMap extends Extension {
         });
         text.push("");
 
-        text.push(`@enduml`);
+        text.push("@enduml");
 
-        return text.join(`\n`);
+        return text.join("\n");
     }
 
     async networkScan(includeRoutes: boolean): Promise<Zigbee2MQTTNetworkMap> {
@@ -230,7 +228,7 @@ export default class NetworkMap extends Extension {
             }
         }
 
-        logger.info(`Network scan finished`);
+        logger.info("Network scan finished");
 
         const topology: Zigbee2MQTTNetworkMap = {nodes: [], links: []};
 

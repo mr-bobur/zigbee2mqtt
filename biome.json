@@ -15,7 +15,11 @@
             "suspicious": {
                 "useAwait": "error"
             },
+            "performance": {
+                "noDelete": "off"
+            },
             "style": {
+                "noNonNullAssertion": "off",
                 "useNamingConvention": {
                     "level": "error",
                     "options": {

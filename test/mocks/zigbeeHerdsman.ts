@@ -151,7 +151,7 @@ export class Endpoint {
         });
         this.removeFromGroup = vi.fn((group: Group) => {
             const index = group.members.indexOf(this);
-            if (index != -1) {
+            if (index !== -1) {
                 group.members.splice(index, 1);
             }
         });

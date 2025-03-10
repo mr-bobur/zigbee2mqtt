@@ -81,7 +81,7 @@ export default class Groups extends Extension {
             const groups = [];
 
             for (const group of this.zigbee.groupsIterator()) {
-                if (group.options && (group.options.optimistic == undefined || group.options.optimistic)) {
+                if (group.options && (group.options.optimistic === undefined || group.options.optimistic)) {
                     groups.push(group);
                 }
             }
@@ -196,18 +196,18 @@ export default class Groups extends Extension {
             let skipDisableReporting = false;
             const message = JSON.parse(data.message) as Zigbee2MQTTAPI["bridge/request/group/members/add"];
 
-            if (typeof message !== "object" || message.device == undefined) {
+            if (typeof message !== "object" || message.device === undefined) {
                 return [message, {type, skipDisableReporting}, "Invalid payload"];
             }
 
             const deviceKey = message.device;
-            skipDisableReporting = message.skip_disable_reporting != undefined ? message.skip_disable_reporting : false;
+            skipDisableReporting = message.skip_disable_reporting !== undefined ? message.skip_disable_reporting : false;
 
             if (type !== "remove_all") {
                 groupKey = message.group;
 
-                if (message.group == undefined) {
-                    return [message, {type, skipDisableReporting}, `Invalid payload`];
+                if (message.group === undefined) {
+                    return [message, {type, skipDisableReporting}, "Invalid payload"];
                 }
 
                 resolvedGroup = this.zigbee.resolveEntity(message.group);
@@ -244,9 +244,8 @@ export default class Groups extends Extension {
                 },
                 undefined,
             ];
-        } else {
-            return [undefined, undefined, undefined];
         }
+        return [undefined, undefined, undefined];
     }
 
     @bind private async onMQTTMessage(data: eventdata.MQTTMessage): Promise<void> {

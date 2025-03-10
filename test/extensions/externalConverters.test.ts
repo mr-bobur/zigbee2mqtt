@@ -286,7 +286,7 @@ describe("Extension: ExternalConverters", () => {
         await resetExtension();
         mocksClear.forEach((m) => m.mockClear());
 
-        const errorMsg = `Invalid definition`;
+        const errorMsg = "Invalid definition";
 
         zhcAddExternalDefinitionSpy.mockImplementationOnce(() => {
             throw new Error(errorMsg);
@@ -314,7 +314,7 @@ describe("Extension: ExternalConverters", () => {
         mockMQTTEvents.message("zigbee2mqtt/bridge/request/converter/save", stringify({name: converterName, code: converterCode}));
         await flushPromises();
 
-        const errorMsg = `Failed to remove definition`;
+        const errorMsg = "Failed to remove definition";
 
         zhcRemoveExternalDefinitionsSpy.mockImplementationOnce(() => {
             throw new Error(errorMsg);
@@ -341,7 +341,7 @@ describe("Extension: ExternalConverters", () => {
 
         expect(mockMQTTPublishAsync).toHaveBeenCalledWith(
             "zigbee2mqtt/bridge/response/converter/save",
-            stringify({data: {}, status: "error", error: `Invalid payload`, transaction: 1}),
+            stringify({data: {}, status: "error", error: "Invalid payload", transaction: 1}),
             {retain: false, qos: 0},
         );
 
@@ -350,7 +350,7 @@ describe("Extension: ExternalConverters", () => {
 
         expect(mockMQTTPublishAsync).toHaveBeenCalledWith(
             "zigbee2mqtt/bridge/response/converter/remove",
-            stringify({data: {}, status: "error", error: `Invalid payload`, transaction: 2}),
+            stringify({data: {}, status: "error", error: "Invalid payload", transaction: 2}),
             {retain: false, qos: 0},
         );
     });

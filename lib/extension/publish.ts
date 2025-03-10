@@ -69,9 +69,8 @@ export default class Publish extends Extension {
             } catch {
                 if (STATE_VALUES.includes(data.message.toLowerCase())) {
                     return {state: data.message};
-                } else {
-                    return undefined;
                 }
+                return undefined;
             }
         }
     }
@@ -86,7 +85,7 @@ export default class Publish extends Extension {
             const hasColorTemp = message.color_temp !== undefined;
             const hasColor = message.color !== undefined;
             const hasBrightness = message.brightness !== undefined;
-            const isOn = entityState.state === "ON" ? true : false;
+            const isOn = entityState.state === "ON";
             if (isOn && (hasColorTemp || hasColor) && !hasBrightness) {
                 delete message.state;
                 logger.debug("Skipping state because of Home Assistant");
@@ -217,7 +216,7 @@ export default class Publish extends Extension {
             }
 
             // If the endpoint_name name is a number, try to map it to a friendlyName
-            if (!isNaN(Number(endpointName)) && re.isDevice() && utils.isZHEndpoint(localTarget) && re.endpointName(localTarget)) {
+            if (!Number.isNaN(Number(endpointName)) && re.isDevice() && utils.isZHEndpoint(localTarget) && re.endpointName(localTarget)) {
                 endpointName = re.endpointName(localTarget);
             }
 
@@ -252,7 +251,7 @@ export default class Publish extends Extension {
                     const result = await converter.convertSet(localTarget, key, value, meta);
                     const optimistic = entitySettings.optimistic === undefined || entitySettings.optimistic;
 
-                    if (result && result.state && optimistic) {
+                    if (result?.state && optimistic) {
                         const msg = result.state;
 
                         if (endpointName) {
@@ -268,7 +267,7 @@ export default class Publish extends Extension {
                         addToToPublish(re, msg);
                     }
 
-                    if (result && result.membersState && optimistic) {
+                    if (result?.membersState && optimistic) {
                         for (const [ieeeAddr, state] of Object.entries(result.membersState)) {
                             addToToPublish(this.zigbee.resolveEntity(ieeeAddr)!, state);
                         }
@@ -307,8 +306,7 @@ export default class Publish extends Extension {
     private getDefinitionConverters(definition: zhc.Definition | zhc.Definition[]): ReadonlyArray<zhc.Tz.Converter> {
         if (Array.isArray(definition)) {
             return definition.length ? Array.from(new Set(definition.flatMap((d) => d.toZigbee))) : [];
-        } else {
-            return definition?.toZigbee;
         }
+        return definition?.toZigbee;
     }
 }

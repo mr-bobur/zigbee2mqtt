@@ -76,7 +76,7 @@ class Logger {
 
             if (settings.get().advanced.log_symlink_current) {
                 const current = settings.get().advanced.log_directory.replace("%TIMESTAMP%", "current");
-                const actual = "./" + timestamp;
+                const actual = `./${timestamp}`;
 
                 /* v8 ignore start */
                 if (fs.existsSync(current)) {
@@ -109,7 +109,7 @@ class Logger {
 
         /* v8 ignore start */
         if (this.output.includes("syslog")) {
-            logging += `, syslog`;
+            logging += ", syslog";
             // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unused-expressions
             require("winston-syslog").Syslog;
 
@@ -119,7 +119,7 @@ class Logger {
                 ...settings.get().advanced.log_syslog,
             };
 
-            if (options["type"] !== undefined) {
+            if (options.type !== undefined) {
                 options.type = options.type.toString();
             }
 
@@ -154,7 +154,7 @@ class Logger {
     }
 
     public setDebugNamespaceIgnore(value: string): void {
-        this.debugNamespaceIgnoreRegex = value != "" ? new RegExp(value) : undefined;
+        this.debugNamespaceIgnoreRegex = value !== "" ? new RegExp(value) : undefined;
     }
 
     public getLevel(): settings.LogLevel {
@@ -182,7 +182,7 @@ class Logger {
     private cacheNamespacedLevel(namespace: string): string {
         let cached = namespace;
 
-        while (this.cachedNamespacedLevels[namespace] == undefined) {
+        while (this.cachedNamespacedLevels[namespace] === undefined) {
             const sep = cached.lastIndexOf(NAMESPACE_SEPARATOR);
 
             if (sep === -1) {

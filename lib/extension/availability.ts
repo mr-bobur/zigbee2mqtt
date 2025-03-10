@@ -43,10 +43,9 @@ export default class Availability extends Extension {
     private isAvailable(entity: Device | Group): boolean {
         if (entity.isDevice()) {
             return Date.now() - (entity.zh.lastSeen ?? /* v8 ignore next */ 0) < this.getTimeout(entity);
-        } else {
-            const membersDevices = entity.membersDevices();
-            return membersDevices.length === 0 || membersDevices.some((d) => this.availabilityCache[d.ieeeAddr]);
         }
+        const membersDevices = entity.membersDevices();
+        return membersDevices.length === 0 || membersDevices.some((d) => this.availabilityCache[d.ieeeAddr]);
     }
 
     private resetTimer(device: Device): void {
@@ -69,7 +68,7 @@ export default class Availability extends Extension {
 
     private removeFromPingQueue(device: Device): void {
         const index = this.pingQueue.findIndex((d) => d.ieeeAddr === device.ieeeAddr);
-        if (index != -1) {
+        if (index !== -1) {
             this.pingQueue.splice(index, 1);
         }
     }
@@ -133,7 +132,7 @@ export default class Availability extends Extension {
             }
         });
 
-        this.eventBus.onEntityRemoved(this, (data) => data.type == "device" && clearTimeout(this.timers[data.id]));
+        this.eventBus.onEntityRemoved(this, (data) => data.type === "device" && clearTimeout(this.timers[data.id]));
         this.eventBus.onDeviceLeave(this, (data) => clearTimeout(this.timers[data.ieeeAddr]));
         this.eventBus.onDeviceAnnounce(this, (data) => this.retrieveState(data.device));
         this.eventBus.onLastSeenChanged(this, this.onLastSeenChanged);
@@ -175,7 +174,7 @@ export default class Availability extends Extension {
 
         const available = this.isAvailable(entity);
 
-        if (!forcePublish && this.availabilityCache[entity.ID] == available) {
+        if (!forcePublish && this.availabilityCache[entity.ID] === available) {
             return;
         }
 

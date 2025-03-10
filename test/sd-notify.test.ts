@@ -72,7 +72,7 @@ describe("sd-notify", () => {
         expect(mockCreateSocket).toHaveBeenCalledTimes(1);
         expect(res).toBeUndefined();
         expect(mockUnixDgramSocket.send).toHaveBeenCalledTimes(0);
-        expect(mockLogger.warning).toHaveBeenCalledWith(`NOTIFY_SOCKET env is set: Unix datagrams not available on this platform`);
+        expect(mockLogger.warning).toHaveBeenCalledWith("NOTIFY_SOCKET env is set: Unix datagrams not available on this platform");
     });
 
     it("Error on supported platform", async () => {

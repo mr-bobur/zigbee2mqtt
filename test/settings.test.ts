@@ -752,7 +752,7 @@ describe("Settings", () => {
 
         settings.reRead();
 
-        const error = `advanced must be object`;
+        const error = "advanced must be object";
         expect(settings.validate()).toEqual(expect.arrayContaining([error]));
     });
 
@@ -780,7 +780,7 @@ describe("Settings", () => {
 
     it("Should throw error when yaml file does not exist", () => {
         settings.testing.clear();
-        expect(settings.validate()[0]).toContain(`ENOENT: no such file or directory, open `);
+        expect(settings.validate()[0]).toContain("ENOENT: no such file or directory, open ");
     });
 
     it("Configuration shouldnt be valid when invalid QOS value is used", async () => {
@@ -836,7 +836,7 @@ describe("Settings", () => {
 
         settings.reRead();
 
-        const error = `friendly_name must be at least 1 char long`;
+        const error = "friendly_name must be at least 1 char long";
         expect(settings.validate()).toEqual(expect.arrayContaining([error]));
     });
 
@@ -848,7 +848,7 @@ describe("Settings", () => {
 
         settings.reRead();
 
-        const error = `friendly_name is not allowed to end or start with /`;
+        const error = "friendly_name is not allowed to end or start with /";
         expect(settings.validate()).toEqual(expect.arrayContaining([error]));
     });
 
@@ -860,7 +860,7 @@ describe("Settings", () => {
 
         settings.reRead();
 
-        const error = `friendly_name is not allowed to contain control char`;
+        const error = "friendly_name is not allowed to contain control char";
         expect(settings.validate()).toEqual(expect.arrayContaining([error]));
     });
 

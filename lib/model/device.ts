@@ -48,7 +48,7 @@ export default class Device {
     exposes(): zhc.Expose[] {
         const exposes: zhc.Expose[] = [];
         assert(this.definition, "Cannot retreive exposes before definition is resolved");
-        if (typeof this.definition.exposes == "function") {
+        if (typeof this.definition.exposes === "function") {
             const options: KeyValue = this.options;
             exposes.push(...this.definition.exposes(this.zh, options));
         } else {
@@ -74,11 +74,11 @@ export default class Device {
     endpoint(key?: string | number): zh.Endpoint | undefined {
         let endpoint: zh.Endpoint | undefined;
 
-        if (key == null || key == "") {
+        if (key == null || key === "") {
             key = "default";
         }
 
-        if (!isNaN(Number(key))) {
+        if (!Number.isNaN(Number(key))) {
             endpoint = this.zh.getEndpoint(Number(key));
         } else if (this.definition?.endpoint) {
             const ID = this.definition?.endpoint?.(this.zh)[key];
@@ -107,7 +107,7 @@ export default class Device {
         if (this.definition?.endpoint) {
             const mapping = this.definition?.endpoint(this.zh);
             for (const [name, id] of Object.entries(mapping)) {
-                if (id == endpoint.ID) {
+                if (id === endpoint.ID) {
                     epName = name;
                 }
             }

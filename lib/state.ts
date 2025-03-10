@@ -84,7 +84,7 @@ class State {
                 logger.error(`Failed to write state to '${this.file}' (${error})`);
             }
         } else {
-            logger.debug(`Not saving state`);
+            logger.debug("Not saving state");
         }
     }
 

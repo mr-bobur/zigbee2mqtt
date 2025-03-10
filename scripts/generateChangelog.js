@@ -1,7 +1,7 @@
-const path = require("path");
-const fs = require("fs");
-const process = require("process");
-const {execSync} = require("child_process");
+const path = require("node:path");
+const fs = require("node:fs");
+const process = require("node:process");
+const {execSync} = require("node:child_process");
 const zhc = require("zigbee-herdsman-converters");
 
 const z2mTillVersion = process.argv[2];
@@ -66,7 +66,6 @@ for (const changelog of changelogs) {
         } else if (line === "### Bug Fixes") {
             context = "fixes";
         } else if (line.startsWith("* **ignore:**")) {
-            continue;
         } else if (changeMatch) {
             let localContext = changelog.isFrontend ? "frontend" : changeMatch[2] ? changeMatch[2] : context;
             if (!changes[localContext]) localContext = "error";
@@ -104,7 +103,7 @@ for (const changelog of changelogs) {
                         if (match) {
                             messages.push(`\`${match.model}\` ${match.vendor} ${match.description}`);
                         } else {
-                            changes["error"].push(`${line} (model '${model}' does not exist)`);
+                            changes.error.push(`${line} (model '${model}' does not exist)`);
                         }
                     }
                 } else {
@@ -121,9 +120,8 @@ for (const changelog of changelogs) {
                 messages.forEach((m) => changes[localContext].push(`- ${issue} ${m} (@${user})`));
             }
         } else if (line === "# Changelog" || line === "### ⚠ BREAKING CHANGES" || !line) {
-            continue;
         } else {
-            changes["error"].push(`- Unmatched line: ${line}`);
+            changes.error.push(`- Unmatched line: ${line}`);
         }
     }
 }
@@ -140,7 +138,7 @@ const names = [
 for (const name of names) {
     result += `# ${name[1]}\n`;
     if (name[0] === "add") {
-        result += `This release adds support for ${changes["add"].length} devices: \n`;
+        result += `This release adds support for ${changes.add.length} devices: \n`;
     }
     changes[name[0]].forEach((e) => (result += `${e}\n`));
     result += "\n";

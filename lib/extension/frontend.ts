@@ -144,7 +144,7 @@ export default class Frontend extends Extension {
         // Attach originalUrl so that static-server can perform a redirect to '/' when serving the root directory.
         // This is necessary for the browser to resolve relative assets paths correctly.
         request.originalUrl = request.url;
-        request.url = "/" + newUrl;
+        request.url = `/${newUrl}`;
         request.path = request.url;
 
         if (newUrl.startsWith("device_icons/")) {

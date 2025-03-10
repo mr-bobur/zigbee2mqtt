@@ -88,7 +88,7 @@ describe("Extension: HomeAssistant", () => {
                 // @ts-expect-error inferred type is wrong
                 baseDefinition,
             );
-            const exposes = typeof d.exposes == "function" ? d.exposes(undefined, undefined) : d.exposes;
+            const exposes = typeof d.exposes === "function" ? d.exposes(undefined, undefined) : d.exposes;
             const device = {
                 definition: d,
                 isDevice: (): boolean => true,
@@ -102,10 +102,10 @@ describe("Extension: HomeAssistant", () => {
             const cfgTypeObjectIds: string[] = [];
 
             configs.forEach((c) => {
-                const id = c["type"] + "/" + c["object_id"];
+                const id = `${c.type}/${c.object_id}`;
                 if (cfgTypeObjectIds.includes(id)) {
                     // A dynamic function must exposes all possible attributes for the docs
-                    if (typeof d.exposes != "function") {
+                    if (typeof d.exposes !== "function") {
                         duplicated.push(d.model);
                     }
                 } else {
@@ -532,7 +532,7 @@ describe("Extension: HomeAssistant", () => {
         });
 
         // Should subscribe to `homeassistant/#` to find out what devices are already discovered.
-        expect(mockMQTTSubscribeAsync).toHaveBeenCalledWith(`homeassistant/#`);
+        expect(mockMQTTSubscribeAsync).toHaveBeenCalledWith("homeassistant/#");
 
         // Retained Home Assistant discovery message arrives
         await mockMQTTEvents.message(topic1, payload1);
@@ -541,7 +541,7 @@ describe("Extension: HomeAssistant", () => {
         await vi.runOnlyPendingTimersAsync();
 
         // Should unsubscribe to not receive all messages that are going to be published to `homeassistant/#` again.
-        expect(mockMQTTUnsubscribeAsync).toHaveBeenCalledWith(`homeassistant/#`);
+        expect(mockMQTTUnsubscribeAsync).toHaveBeenCalledWith("homeassistant/#");
 
         expect(mockMQTTPublishAsync).not.toHaveBeenCalledWith(topic1, expect.anything(), expect.any(Object));
         // Device automation should not be cleared
@@ -1044,7 +1044,7 @@ describe("Extension: HomeAssistant", () => {
             set_position_template: '{ "position": {{ position }} }',
             position_template: "{{ value_json.position }}",
             state_topic: "zigbee2mqtt/smart vent",
-            value_template: `{{ value_json.state }}`,
+            value_template: "{{ value_json.state }}",
             state_open: "OPEN",
             state_closed: "CLOSE",
             state_stopped: "STOP",
@@ -2323,7 +2323,7 @@ describe("Extension: HomeAssistant", () => {
         await flushPromises();
 
         // Discovery messages for scenes have been purged.
-        expect(mockMQTTPublishAsync).toHaveBeenCalledWith(`homeassistant/scene/0x000b57fffec6a5b4/scene_1/config`, "", {retain: true, qos: 1});
+        expect(mockMQTTPublishAsync).toHaveBeenCalledWith("homeassistant/scene/0x000b57fffec6a5b4/scene_1/config", "", {retain: true, qos: 1});
         await vi.runOnlyPendingTimersAsync();
         await flushPromises();
 
@@ -2345,7 +2345,7 @@ describe("Extension: HomeAssistant", () => {
             origin: origin,
             availability: [{topic: "zigbee2mqtt/bridge/state", value_template: "{{ value_json.state }}"}],
         };
-        expect(mockMQTTPublishAsync).toHaveBeenCalledWith(`homeassistant/scene/0x000b57fffec6a5b4/scene_1/config`, stringify(payload), {
+        expect(mockMQTTPublishAsync).toHaveBeenCalledWith("homeassistant/scene/0x000b57fffec6a5b4/scene_1/config", stringify(payload), {
             retain: true,
             qos: 1,
         });
@@ -2361,7 +2361,7 @@ describe("Extension: HomeAssistant", () => {
         await flushPromises();
 
         // Discovery messages for scenes have been purged.
-        expect(mockMQTTPublishAsync).toHaveBeenCalledWith(`homeassistant/scene/1221051039810110150109113116116_9/scene_4/config`, "", {
+        expect(mockMQTTPublishAsync).toHaveBeenCalledWith("homeassistant/scene/1221051039810110150109113116116_9/scene_4/config", "", {
             retain: true,
             qos: 1,
         });
@@ -2386,7 +2386,7 @@ describe("Extension: HomeAssistant", () => {
             availability: [{topic: "zigbee2mqtt/bridge/state", value_template: "{{ value_json.state }}"}],
         };
         expect(mockMQTTPublishAsync).toHaveBeenCalledWith(
-            `homeassistant/scene/1221051039810110150109113116116_9/scene_4/config`,
+            "homeassistant/scene/1221051039810110150109113116116_9/scene_4/config",
             stringify(payload),
             {retain: true, qos: 1},
         );

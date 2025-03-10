@@ -68,7 +68,7 @@ export default class Zigbee {
             this.herdsman = new Controller(herdsmanSettings);
             startResult = await this.herdsman.start();
         } catch (error) {
-            logger.error(`Error while starting zigbee-herdsman`);
+            logger.error("Error while starting zigbee-herdsman");
             throw error;
         }
 
@@ -116,10 +116,7 @@ export default class Zigbee {
             await device.resolveDefinition();
             logger.debug(
                 () =>
-                    `Received Zigbee message from '${device.name}', type '${data.type}', ` +
-                    `cluster '${data.cluster}', data '${stringify(data.data)}' from endpoint ${data.endpoint.ID}` +
-                    (data["groupID"] !== undefined ? ` with groupID ${data.groupID}` : ``) +
-                    (device.zh.type === "Coordinator" ? `, ignoring since it is from coordinator` : ``),
+                    `Received Zigbee message from '${device.name}', type '${data.type}', cluster '${data.cluster}', data '${stringify(data.data)}' from endpoint ${data.endpoint.ID}${data.groupID !== undefined ? ` with groupID ${data.groupID}` : ""}${device.zh.type === "Coordinator" ? ", ignoring since it is from coordinator" : ""}`,
             );
             if (device.zh.type === "Coordinator") return;
             this.eventBus.emitDeviceMessage({...data, device});
@@ -165,9 +162,7 @@ export default class Zigbee {
                 logger.info(`Device '${name}' is supported, identified as: ${vendor} ${description} (${model})`);
             } else {
                 logger.warning(
-                    `Device '${name}' with Zigbee model '${data.device.zh.modelID}' and manufacturer name ` +
-                        `'${data.device.zh.manufacturerName}' is NOT supported, ` +
-                        `please follow https://www.zigbee2mqtt.io/advanced/support-new-devices/01_support_new_devices.html`,
+                    `Device '${name}' with Zigbee model '${data.device.zh.modelID}' and manufacturer name '${data.device.zh.manufacturerName}' is NOT supported, please follow https://www.zigbee2mqtt.io/advanced/support-new-devices/01_support_new_devices.html`,
                 );
             }
         } else if (data.status === "failed") {
@@ -274,22 +269,22 @@ export default class Zigbee {
     resolveEntity(key: string | number | zh.Device): Device | Group | undefined {
         if (typeof key === "object") {
             return this.resolveDevice(key.ieeeAddr);
-        } else if (typeof key === "string" && key.toLowerCase() === "coordinator") {
+        }
+        if (typeof key === "string" && key.toLowerCase() === "coordinator") {
             return this.resolveDevice(this.herdsman.getDevicesByType("Coordinator")[0].ieeeAddr);
-        } else {
-            const settingsDevice = settings.getDevice(key.toString());
+        }
+        const settingsDevice = settings.getDevice(key.toString());
 
-            if (settingsDevice) {
-                return this.resolveDevice(settingsDevice.ID);
-            }
+        if (settingsDevice) {
+            return this.resolveDevice(settingsDevice.ID);
+        }
 
-            const groupSettings = settings.getGroup(key);
+        const groupSettings = settings.getGroup(key);
 
-            if (groupSettings) {
-                const group = this.resolveGroup(groupSettings.ID);
-                // If group does not exist, create it (since it's already in configuration.yaml)
-                return group ? group : this.createGroup(groupSettings.ID);
-            }
+        if (groupSettings) {
+            const group = this.resolveGroup(groupSettings.ID);
+            // If group does not exist, create it (since it's already in configuration.yaml)
+            return group ? group : this.createGroup(groupSettings.ID);
         }
     }
 
@@ -363,21 +358,19 @@ export default class Zigbee {
             if (passlist.includes(ieeeAddr)) {
                 logger.info(`Accepting joining device which is on passlist '${ieeeAddr}'`);
                 return true;
-            } else {
-                logger.info(`Rejecting joining not in passlist device '${ieeeAddr}'`);
-                return false;
             }
-        } else if (blocklist.length > 0) {
+            logger.info(`Rejecting joining not in passlist device '${ieeeAddr}'`);
+            return false;
+        }
+        if (blocklist.length > 0) {
             if (blocklist.includes(ieeeAddr)) {
                 logger.info(`Rejecting joining device which is on blocklist '${ieeeAddr}'`);
                 return false;
-            } else {
-                logger.info(`Accepting joining not in blocklist device '${ieeeAddr}'`);
-                return true;
             }
-        } else {
+            logger.info(`Accepting joining not in blocklist device '${ieeeAddr}'`);
             return true;
         }
+        return true;
     }
 
     async touchlinkFactoryResetFirst(): Promise<boolean> {

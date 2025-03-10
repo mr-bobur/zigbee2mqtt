@@ -191,7 +191,7 @@ describe("Extension: ExternalExtensions", () => {
 
         expect(mockMQTTPublishAsync).toHaveBeenCalledWith(
             "zigbee2mqtt/bridge/response/extension/save",
-            stringify({data: {}, status: "error", error: `Invalid payload`, transaction: 1}),
+            stringify({data: {}, status: "error", error: "Invalid payload", transaction: 1}),
             {retain: false, qos: 0},
         );
 
@@ -200,7 +200,7 @@ describe("Extension: ExternalExtensions", () => {
 
         expect(mockMQTTPublishAsync).toHaveBeenCalledWith(
             "zigbee2mqtt/bridge/response/extension/remove",
-            stringify({data: {}, status: "error", error: `Invalid payload`, transaction: 2}),
+            stringify({data: {}, status: "error", error: "Invalid payload", transaction: 2}),
             {retain: false, qos: 0},
         );
     });

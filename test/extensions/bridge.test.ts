@@ -3918,35 +3918,35 @@ describe("Extension: Bridge", () => {
         // @ts-expect-error bare minimum mock
         let payload = bridge.getDefinitionPayload({...device, zh: device, definition, exposes: () => definition.exposes, options: {}});
         assert(payload);
-        expect(payload["icon"]).not.toBeUndefined();
+        expect(payload.icon).not.toBeUndefined();
         expect(payload.icon).toBe(icon_link);
 
         definition.icon = icon_link;
         // @ts-expect-error bare minimum mock
         payload = bridge.getDefinitionPayload({...device, zh: device, definition, exposes: () => definition.exposes, options: {icon: svg_icon}});
         assert(payload);
-        expect(payload["icon"]).not.toBeUndefined();
+        expect(payload.icon).not.toBeUndefined();
         expect(payload.icon).toBe(svg_icon);
 
         definition.icon = "_${model}_";
         // @ts-expect-error bare minimum mock
         payload = bridge.getDefinitionPayload({...device, zh: device, definition, exposes: () => definition.exposes, options: {}});
         assert(payload);
-        expect(payload["icon"]).not.toBeUndefined();
+        expect(payload.icon).not.toBeUndefined();
         expect(payload.icon).toBe("_lumi.plug_");
 
         definition.icon = "_${model}_${zigbeeModel}_";
         // @ts-expect-error bare minimum mock
         payload = bridge.getDefinitionPayload({...device, zh: device, definition, exposes: () => definition.exposes, options: {}});
         assert(payload);
-        expect(payload["icon"]).not.toBeUndefined();
+        expect(payload.icon).not.toBeUndefined();
         expect(payload.icon).toBe("_lumi.plug_lumi.plug_");
 
         definition.icon = svg_icon;
         // @ts-expect-error bare minimum mock
         payload = bridge.getDefinitionPayload({...device, zh: device, definition, exposes: () => definition.exposes, options: {}});
         assert(payload);
-        expect(payload["icon"]).not.toBeUndefined();
+        expect(payload.icon).not.toBeUndefined();
         expect(payload.icon).toBe(svg_icon);
 
         device.modelID = "?._Z\\NC+Z02*LM";
@@ -3955,7 +3955,7 @@ describe("Extension: Bridge", () => {
         // @ts-expect-error bare minimum mock
         payload = bridge.getDefinitionPayload({...device, zh: device, definition, exposes: () => definition.exposes, options: {}});
         assert(payload);
-        expect(payload["icon"]).not.toBeUndefined();
+        expect(payload.icon).not.toBeUndefined();
         expect(payload.icon).toBe("_------_-._Z-NC-Z02-LM_");
     });
 
