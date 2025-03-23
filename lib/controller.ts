@@ -183,6 +183,7 @@ export class Controller {
                     data = { [device.zh.modelID + '_' + device.zh.ieeeAddr]: { ModelID: device.zh.modelID + '_' + device.zh.ieeeAddr }, ...data };
                 }
             } 
+            
             const json = JSON.stringify(data, null, 4);
             try {
                 fs.writeFileSync('data/devices.json', json, 'utf8');

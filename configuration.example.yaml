@@ -1,0 +1,30 @@
+homeassistant:
+  enabled: false
+advanced:
+  channel: 24
+  output: json
+frontend:
+  enabled: true
+  port: 8080
+mqtt:
+  base_topic: zigbee2mqtt
+  server: mqtt://127.0.0.1
+  port: 1883
+  user: 82mpe9eniph5l6nbpxkj
+  password: 82mpe9eniph5l6nbpxkj
+  client_id: 82mpe9eniph5l6nbpxkj
+  keepalive: 60
+  reject_unauthorized: true
+  version: 4
+serial:
+  port: COM8
+  adapter: ember # Ember EM35x (EZSP) ezsp
+version: 4
+availability:
+  active:
+    timeout: 1
+devices:
+  '0xa4c138e70a15f5fb':
+    friendly_name: '0xa4c138e70a15f5fb'
+  '0xa4c138d0356b6a27':
+    friendly_name: '0xa4c138d0356b6a27'

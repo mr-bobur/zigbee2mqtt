@@ -149,6 +149,7 @@ export default class MQTT {
         this.client.on('connect', this.onConnect);
         this.client2.on('connect', this.onConnect2);
 
+
         this.republishRetainedTimer = setTimeout(async () => {
             // Republish retained messages in case MQTT broker does not persist them.
             // https://github.com/Koenkk/zigbee2mqtt/issues/9629
@@ -291,7 +292,7 @@ export default class MQTT {
                  var jsonPayload = JSON.parse(payload);
                 if (jsonPayload.hasOwnProperty('modelID')) { 
                     // finding send to as attribute or telemetry
-                     if (jsonPayload.hasOwnProperty('co2') || jsonPayload.hasOwnProperty('precence')) {
+                     if (jsonPayload.hasOwnProperty('co2') || jsonPayload.hasOwnProperty('presence')) {
                         jsonPayload = { [jsonPayload.modelID]: jsonPayload }; // attributes stil
                         this.publishToThingsboardAsAttribute(JSON.stringify(jsonPayload), { retain: true, qos: 1 });
                     } else {
@@ -299,7 +300,7 @@ export default class MQTT {
                         this.publishToThingsboardAsTelemetry(JSON.stringify(jsonPayload), { retain: true, qos: 1 });
                     } 
                 }
-            } catch (error) {
+            } catch (error) { 
                 logger.error(`MQTT server error: ${(error as Error).message}`);
             }
         }
