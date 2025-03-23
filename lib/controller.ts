@@ -2,6 +2,7 @@ import type {IClientPublishOptions} from 'mqtt';
 import type * as SdNotify from 'sd-notify';
 
 import type {Zigbee2MQTTAPI} from './types/api';
+import fs from 'node:fs';
 
 import assert from 'node:assert';
 
@@ -175,6 +176,19 @@ export class Controller {
 
         // MQTT
         try {
+
+            var data = {};
+            for (const device of this.zigbee.devicesIterator(utils.deviceNotCoordinator)) {
+                if (device.zh.modelID != undefined) {
+                    data = { [device.zh.modelID + '_' + device.zh.ieeeAddr]: { ModelID: device.zh.modelID + '_' + device.zh.ieeeAddr }, ...data };
+                }
+            } 
+            const json = JSON.stringify(data, null, 4);
+            try {
+                fs.writeFileSync('data/devices.json', json, 'utf8');
+            } catch (error) {
+                logger.error(`Failed to write state to (${error})`);
+            } 
             await this.mqtt.connect();
         } catch (error) {
             logger.error(`MQTT failed to connect, exiting... (${(error as Error).message})`);

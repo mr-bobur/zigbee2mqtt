@@ -163,6 +163,8 @@ export default class Receive extends Extension {
             deviceExposesChanged: (): void => this.eventBus.emitExposesAndDevicesChanged(data.device),
         };
         let payload: KeyValue = {};
+        payload.modelID = meta.device.modelID + '_' + meta.device.ieeeAddr;
+        
         for (const converter of converters) {
             try {
                 const convertData = {...data, device: data.device.zh};
